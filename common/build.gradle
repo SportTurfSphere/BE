@@ -1,0 +1,74 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'java-library'
+	id 'com.google.cloud.tools.jib' version '3.2.1'
+	id "fr.brouillard.oss.gradle.jgitver" version "0.10.0-rc03"
+	id 'eu.davidea.grabver' version '2.0.3'
+	id 'pl.allegro.tech.build.axion-release' version '1.14.0'
+}
+
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
+project.version = "${versioning.name}"
+apply plugin: 'eu.davidea.grabver'
+
+versioning {
+	major = 0
+	minor = 1
+	patch = 0
+	preRelease = ""
+	incrementOn = "jar"
+	saveOn = "jar"
+}
+
+println("TEST - VersionCode: ${versioning.code}")
+println("TEST - VersionName: ${versioning.name}")
+println("TEST - FullName: ${versioning.fullName}")
+
+group = Globals.buildGroup
+
+class Globals {
+	static String buildGroup = "com.truf.common"
+	static String buildName = "truf-common"
+}
+
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = true
+	archiveBaseName = Globals.buildName
+	archiveVersion = "${versioning.major}.${versioning.minor}.${versioning.patch}"
+	archiveClassifier = ""
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.kafka:spring-kafka'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework:spring-webflux'
+	implementation 'io.projectreactor.netty:reactor-netty:1.0.24'
+	implementation 'org.springframework.data:spring-data-jpa:3.4.0'
+	implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'com.github.ben-manes.caffeine:caffeine'
+	implementation 'javax.persistence:javax.persistence-api:2.2'
+	implementation 'org.hibernate:hibernate-gradle-plugin:5.6.15.Final'
+	implementation("com.google.code.gson:gson:2.9.1")
+}
