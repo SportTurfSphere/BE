@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+
+    <Properties>
+        <property name="serviceName">GATEWAY</property>
+        <Property name="basePath">/var/log/containers</Property>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} %-5p [%C{1}] %M{1}:%L - %m%n
+        </Property>
+        <Property name="consoleLogPattern">
+            [%level] %date{yyyy-MM-dd HH:mm:ss.SSS ZZZ} [${env:serviceName}]---%c{1.}(%method:%L), "traceId": "%X{traceId}", "spanId": "%X{spanId}"--%message%n
+        </Property>
+        <Property name="JSON_LOG_PATTERN">{"time": "%d{ISO8601}", "level": "%-5level",
+            "service": "${env:serviceName}", "class": "%-40.40logger{39}:%L",
+            "environment": "${sys:spring.profiles.active:-defaultEnv}",
+            "instanceId" : "%X{instanceId}", "requestId" :
+            "%X{logMDCFilter.UUID}", "message":
+            "%enc{%maxLen{%m}{204800}}{JSON}", "traceId": "%X{X-B3-TraceId}",
+            "spanId": "%X{X-B3-SpanId}", "exception":
+            "%enc{%maxLen{%ex}{204800}}{JSON}"}%n
+        </Property>
+        <Property name="EXT_API_LOG_PATTERN">%n%date{yyyy-MM-dd HH:mm:ss ZZZ} %message%n
+        </Property>
+        <Property name="DEFAULT_API_LOG_PATTERN">
+            %n[%level] %date{yyyy-MM-dd HH:mm:ss.SSS ZZZ} [${env:serviceName}]---%c{1.}(%M:%L), "traceId": "%X{traceId}", "spanId": "%X{spanId}"--%message%n
+        </Property>
+    </Properties>
+
+    <CustomLevels>
+        <CustomLevel name="VERBOSE" intLevel="550" />
+        <CustomLevel name="SERVICE_LOG" intLevel="530" />
+        <CustomLevel name="ACCESS_LOG" intLevel="520" />
+    </CustomLevels>
+
+    <Appenders>
+
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${consoleLogPattern}" />
+        </Console>
+
+        <RollingFile name="debugLog"
+                     fileName="${basePath}/gateway-debug.log"
+                     filePattern="${basePath}/gateway-debug-%d{yyyy-MM-dd}-%i.log.zip">
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG"
+                              onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout pattern="${DEFAULT_API_LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"
+                                           modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+        <RollingFile name="errorLog"
+                     fileName="${basePath}/gateway-error.log"
+                     filePattern="${basePath}/gateway-error-%d{yyyy-MM-dd}-%i.log.zip">
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR"
+                              onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout pattern="${DEFAULT_API_LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"
+                                           modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+        <RollingFile name="infoLog"
+                     fileName="${basePath}/transaction-application-info.log"
+                     filePattern="${basePath}/gateway-info-%d{yyyy-MM-dd}-%i.log.zip">
+            <LevelRangeFilter minLevel="INFO" maxLevel="INFO"
+                              onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout pattern="${DEFAULT_API_LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"
+                                           modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+        <RollingFile name="warnLog"
+                     fileName="${basePath}/gateway-warn.log"
+                     filePattern="${basePath}/gateway-warn-%d{yyyy-MM-dd}-%i.log.zip">
+            <LevelRangeFilter minLevel="WARN" maxLevel="WARN"
+                              onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout pattern="${DEFAULT_API_LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"
+                                           modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+        <RollingFile name="extLog"
+                     fileName="${basePath}/gateway-ext.log"
+                     filePattern="${basePath}/gateway-ext-%d{yyyy-MM-dd}-%i.log.zip">
+            <LevelRangeFilter minLevel="VERBOSE"
+                              maxLevel="VERBOSE" onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout pattern="${DEFAULT_API_LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"
+                                           modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+        <Async name="asyncDebugLog">
+            <AppenderRef ref="debugLog"/>
+        </Async>
+        <Async name="asyncErrorLog">
+            <AppenderRef ref="errorLog"/>
+        </Async>
+        <Async name="asyncInfoLog">
+            <AppenderRef ref="infoLog"/>
+        </Async>
+        <Async name="asyncWarnLog">
+            <AppenderRef ref="warnLog"/>
+        </Async>
+        <Async name="asyncExtLog">
+            <AppenderRef ref="extLog"/>
+        </Async>
+        <Async name="asyncConsoleLog">
+            <AppenderRef ref="Console"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.turf.gateway" additivity="false">
+            <AppenderRef ref="asyncDebugLog"/>
+            <AppenderRef ref="asyncErrorLog"/>
+            <AppenderRef ref="asyncInfoLog"/>
+            <AppenderRef ref="asyncWarnLog"/>
+            <AppenderRef ref="asyncExtLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <AsyncRoot level="info">
+            <AppenderRef ref="Console"/>
+        </AsyncRoot>
+    </Loggers>
+
+</Configuration>
