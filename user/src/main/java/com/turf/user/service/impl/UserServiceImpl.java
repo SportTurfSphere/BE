@@ -51,7 +51,6 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final FetchUserRepo fetchUserRepo;
     private final PersistUserRepo persistUserRepo;
-    public static final String TOKEN = "?token=";
     private ConcurrentHashMap<String, TokenInfo> loggedInUserToken = new ConcurrentHashMap<>();
 
     @Override
@@ -63,8 +62,8 @@ public class UserServiceImpl implements UserService {
         }
 
         var userDetails = user.get();
-        checkUserUserStatus(userDetails, true);
-        if (!BcryptUtil.matches(authRequest.getPassword(), userDetails.getPassword())) {
+       // checkUserUserStatus(userDetails, true);
+        /*if (!BcryptUtil.matches(authRequest.getPassword(), userDetails.getPassword())) {
             int attempt = Optional.ofNullable(userDetails.getLoginAttemptCount()).isEmpty() ? 0 :
                     userDetails.getLoginAttemptCount();
             userDetails.setLoginAttemptCount(attempt + 1);
@@ -73,9 +72,9 @@ public class UserServiceImpl implements UserService {
                     authRequest.getUserName(), userDetails.getLoginAttemptCount());
             persistUserRepo.saveUser(userDetails);
             throw new AuthenticationException(UNAUTHORIZED_ERROR);
-        }
-        userDetails.setLoginAttemptCount(0);
-        userDetails.setLastLogin(LocalDateTime.now());
+        }*/
+      //  userDetails.setLoginAttemptCount(0);
+      //  userDetails.setLastLogin(LocalDateTime.now());
         persistUserRepo.saveUser(userDetails);
         TokenInfo tokenInfo = jwtUtil.generateTokens(
                 userDetails.getEmail(), userDetails.getId(), userDetails.getName());
@@ -123,7 +122,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public void checkUserUserStatus(User user, boolean login) {
+    /*public void checkUserUserStatus(User user, boolean login) {
         if (login && user.getLoginAttemptCount() != null && user.getLoginAttemptCount() >= maxLoginAttempt &&
                 System.currentTimeMillis() - user.getLastFailedLogin() < allowedLoginAttemptInterval) {
             log.error("{} failed to login due to too many attempts", user.getName());
@@ -135,7 +134,7 @@ public class UserServiceImpl implements UserService {
             default -> {
             }
         }
-    }
+    }*/
 
     private String getTokenFromServlet() {
         String token = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
@@ -167,7 +166,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @PostConstruct
+    /*@PostConstruct
     private void insertUserData() {
         defaultUserEmails.forEach(userName -> {
             if (fetchUserRepo.findByEmail(userName).isEmpty()) {
@@ -180,7 +179,7 @@ public class UserServiceImpl implements UserService {
                 persistUserRepo.saveUser(newUser);
             }
         });
-    }
+    }*/
 
     private String getUserNameFromServlet() {
         String userName = httpServletRequest.getHeader(LOGGED_IN_USER_NAME);

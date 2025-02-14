@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.turf.user.constants.SchemaNameConstants.TABLE_USER;
 
@@ -23,29 +23,21 @@ public class User extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email")
     private String email;
-
-    @Column(name = "password")
-    private String password;
-
-    @Column(name = "remarks")
-    private String remarks;
-
-    @Column(name = "last_login")
-    private LocalDateTime lastLogin;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @Column(name = "login_attempt")
-    private Integer loginAttemptCount;
+    @Column(nullable = false, unique = true)
+    private String mobileNumber;
 
-    @Column(name = "last_failed_login")
-    private Long lastFailedLogin;
-
-    @Column(name = "is_default_user")
-    private Boolean isDefaultUser;
-
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Roles> roles;
 }
