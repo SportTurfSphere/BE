@@ -1,12 +1,11 @@
 package com.turf.common.entity;
 
-import com.turf.common.util.CommonEntityUtils;
+import com.turf.common.entity.listener.BaseEntityListener;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @lombok.Data
 @NoArgsConstructor
 @MappedSuperclass
-@EntityListeners({AuditingEntityListener.class})
+@EntityListeners({BaseEntityListener.class})
 @SuperBuilder
 public abstract class BaseEntity implements Serializable {
 
@@ -37,15 +36,9 @@ public abstract class BaseEntity implements Serializable {
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = createdAt;
-        uuid = CommonEntityUtils.generateUniqueId();
-    }
+    @Column(name = "created_by", nullable = false, updatable = false)
+    private String createdBy;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @Column(name = "updated_by", nullable = false)
+    private String updatedBy;
 }
